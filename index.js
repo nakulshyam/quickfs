@@ -4,15 +4,31 @@ var fs = require('fs');
 
 http.createServer(function (req, res) {
   if (req.url == '/fileupload') {
+	  console.log('fileupload')
     var form = new formidable.IncomingForm();
     form.parse(req, function (err, fields, files) {
       var oldpath = files.filetoupload.path;
-      var newpath = 'C:/MyProjects/quickfs/fs' + files.filetoupload.name;
-      fs.rename(oldpath, newpath, function (err) {
-        if (err) throw err;
-        res.write('File uploaded and moved!');
-        res.end();
-      });
+      var newpath = "/workspace/quickfs/fs/" + files.filetoupload.name;
+		console.log(newpath)
+		fs.readFile(oldpath, function (err, data) {
+            if (err) throw err;
+            console.log('File read!');
+
+            // Write the file
+            fs.writeFile(newpath, data, function (err) {
+                if (err) throw err;
+                res.write('File uploaded and moved!');
+                res.end();
+                console.log('File written!');
+            });
+
+            // Delete the file
+            fs.unlink(oldpath, function (err) {
+                if (err) throw err;
+                console.log('File deleted!');
+            });
+        });
+      
  });
   } else {
     fs.readFile("index.html", function (error, html) {
